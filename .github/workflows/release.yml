@@ -30,6 +30,7 @@ jobs:
             -DSFML_BUILD_WINDOW=OFF \
             -DSFML_BUILD_GRAPHICS=OFF \
             -DSFML_BUILD_NETWORK=OFF \
+            -DSFML_USE_SYSTEM_DEPS=OFF \
             -DCPACK_PACKAGE_FILE_NAME=${{ github.event.inputs.version }}-Linux
 
       - name: Build
@@ -63,6 +64,7 @@ jobs:
             -DSFML_BUILD_WINDOW=OFF \
             -DSFML_BUILD_GRAPHICS=OFF \
             -DSFML_BUILD_NETWORK=OFF \
+            -DSFML_USE_SYSTEM_DEPS=OFF \
             -DCPACK_PACKAGE_FILE_NAME=${{ github.event.inputs.version }}-win64
 
       - name: Build
