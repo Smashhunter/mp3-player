@@ -1,11 +1,17 @@
 name: 'C++ CI'
 
 on:
-  push:
-    branches:
-      - lab3
-      - feature/github_actions
-
+  workflow_dispatch:
+    inputs:
+        version:
+          description: 'Версия релиза (например: v1.0.0)'
+          required: true
+          type: string
+        release_notes:
+          description: 'Примечания к релизу'
+          required: false
+          type: string
+          default: 'Релиз создан через GitHub Actions'
 jobs:
   build-ubuntu:
     runs-on: ubuntu-latest
@@ -19,23 +25,23 @@ jobs:
 
       - name: Configure Cmake
         run: |
-          cmake -B build -S .
-          cmake build -DPATCH_VERSION=${{ github.run_number }}
+          cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DPATCH_VERSION=${{ github.run_number }}
 
       - name: Build
         run: |
-          cmake --build build
-          cmake --build build --target tests
-          cmake --build build --target package --config Release
+          cmake --build build --config Release --target package
 
-      - name: Upload Release Asset
+      - name: Upload Release Assets
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          gh release create v2025.3.${{ github.run_number }} build/lab3-2025.3.${{ github.run_number }}-Linux.deb
+          gh release create v2026.0.${{ github.run_number }} \
+            build/mp3-player-2026.0.${{ github.run_number }}-Linux.tar.gz \
+            build/mp3-player-2026.0.${{ github.run_number }}-Linux.zip
 
   build-windows:
+    needs: build-ubuntu
     runs-on: windows-latest
     permissions: write-all
     steps:
@@ -55,13 +61,13 @@ jobs:
 
       - name: Build
         run: |
-          cmake --build build
-          # cmake --build build --target tests
-          cmake --build build --target package --config Release
-      
-      - name: Upload Release Asset
+          cmake --build build --config Release --target package
+
+      - name: Upload Release Assets
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: cmd
         run: |
-          gh release upload v2025.3.${{ github.run_number }} build/lab3-2025.3.${{ github.run_number }}-win64.zip
+          gh release upload v2026.0.${{ github.run_number }} \
+            build\mp3-player-2026.0.${{ github.run_number }}-win64.zip \
+            build\mp3-player-2026.0.${{ github.run_number }}-win64.tar.gz

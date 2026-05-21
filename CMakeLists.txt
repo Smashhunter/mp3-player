@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
-project(thi-lab3 VERSION 1.0.0 LANGUAGES CXX)
+project(mp3-player VERSION 1.0.0 LANGUAGES CXX)
+
+set(PATCH_VERSION 0 CACHE STRING "Package patch version")
 
 # Опции (опционально)
 set(CMAKE_CXX_STANDARD 17)
@@ -28,3 +30,17 @@ target_link_libraries(mp3-player PRIVATE SFML::Audio)
 target_sources(mp3-player PRIVATE ${LIB_SOURCES})
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT mp3-player)
+
+install(TARGETS mp3-player
+    RUNTIME DESTINATION bin
+)
+install(FILES "${CMAKE_SOURCE_DIR}/README.md" DESTINATION .)
+
+set(CPACK_PACKAGE_NAME "mp3-player")
+set(CPACK_GENERATOR "TGZ;ZIP")
+set(CPACK_PACKAGE_DIRECTORY "${CMAKE_BINARY_DIR}")
+set(CPACK_PACKAGE_FILE_NAME "mp3-player-2026.0.${PATCH_VERSION}-${CMAKE_SYSTEM_NAME}")
+if(WIN32)
+    set(CPACK_PACKAGE_FILE_NAME "mp3-player-2026.0.${PATCH_VERSION}-win64")
+endif()
+include(CPack)
