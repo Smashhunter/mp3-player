@@ -41,44 +41,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: linux-package
-          path: build/*.tar.gz
-
-  build-windows:
-    runs-on: windows-latest
-    permissions: write-all
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Download and configure vcpkg
-        run: |
-          git clone https://github.com/Microsoft/vcpkg.git
-          .\vcpkg\bootstrap-vcpkg.bat
-          .\vcpkg\vcpkg install boost-test --triplet x64-windows
-
-      - name: Configure CMake
-        run: |
-          cmake -B build -S . -G "Visual Studio 17 2022" -A x64 \
-            -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" \
-            -DPATCH_VERSION=${{ github.run_number }} \
-            -DSFML_BUILD_WINDOW=OFF \
-            -DSFML_BUILD_GRAPHICS=OFF \
-            -DSFML_BUILD_NETWORK=OFF \
-            -DSFML_USE_SYSTEM_DEPS=OFF \
-            -DCPACK_PACKAGE_FILE_NAME=${{ github.event.inputs.version }}-win64
-
-      - name: Build
-        run: |
-          cmake --build build --config Release --parallel 2 --target package
-
-      - name: Upload Windows package artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-package
-          path: build/*.zip
+          path: build
 
   release:
-    needs: [build-ubuntu, build-windows]
+    needs: [build-ubuntu]
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
@@ -88,17 +54,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: linux-package
-
-      - name: Download Windows package artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: windows-package
-
+          path: build/*.tar.gz
       - name: Publish release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e
-          if ! gh release create "${{ github.event.inputs.version }}" --notes "${{ github.event.inputs.release_notes }}" build/*.tar.gz build/*.zip; then
-            gh release upload "${{ github.event.inputs.version }}" build/*.tar.gz build/*.zip
+          if ! gh release create "${{ github.event.inputs.version }}" --notes "${{ github.event.inputs.release_notes }}" build/*.tar.gz; then
+            gh release upload "${{ github.event.inputs.version }}" build/*.tar.gz
           fi
