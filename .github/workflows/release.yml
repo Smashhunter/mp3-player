@@ -21,53 +21,82 @@ jobs:
 
       - name: Prepare system
         run: sudo apt-get update -y && sudo apt-get install libboost-test-dev -y
-        
 
-      - name: Configure Cmake
+      - name: Configure CMake
         run: |
-          cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DPATCH_VERSION=${{ github.run_number }}
+          cmake -B build -S . \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DPATCH_VERSION=${{ github.run_number }} \
+            -DSFML_BUILD_WINDOW=OFF \
+            -DSFML_BUILD_GRAPHICS=OFF \
+            -DSFML_BUILD_NETWORK=OFF \
+            -DCPACK_PACKAGE_FILE_NAME=${{ github.event.inputs.version }}-Linux
 
       - name: Build
         run: |
-          cmake --build build --config Release --target package
+          cmake --build build --config Release --parallel 2 --target package
 
-      - name: Upload Release Assets
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        shell: bash
-        run: |
-          gh release create v2026.0.${{ github.run_number }} \
-            build/mp3-player-2026.0.${{ github.run_number }}-Linux.tar.gz \
-            build/mp3-player-2026.0.${{ github.run_number }}-Linux.zip
+      - name: Upload Linux package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-package
+          path: build/*.tar.gz
 
   build-windows:
-    needs: build-ubuntu
     runs-on: windows-latest
     permissions: write-all
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Dowload and Configure vcpkg
+      - name: Download and configure vcpkg
         run: |
           git clone https://github.com/Microsoft/vcpkg.git
           .\vcpkg\bootstrap-vcpkg.bat
           .\vcpkg\vcpkg install boost-test --triplet x64-windows
 
-
       - name: Configure CMake
         run: |
-          cmake -B build -S . -G "Visual Studio 17 2022" -A x64 -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" -DPATCH_VERSION=${{ github.run_number }}
+          cmake -B build -S . -G "Visual Studio 17 2022" -A x64 \
+            -DCMAKE_TOOLCHAIN_FILE="vcpkg/scripts/buildsystems/vcpkg.cmake" \
+            -DPATCH_VERSION=${{ github.run_number }} \
+            -DSFML_BUILD_WINDOW=OFF \
+            -DSFML_BUILD_GRAPHICS=OFF \
+            -DSFML_BUILD_NETWORK=OFF \
+            -DCPACK_PACKAGE_FILE_NAME=${{ github.event.inputs.version }}-win64
 
       - name: Build
         run: |
-          cmake --build build --config Release --target package
+          cmake --build build --config Release --parallel 2 --target package
 
-      - name: Upload Release Assets
+      - name: Upload Windows package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-package
+          path: build/*.zip
+
+  release:
+    needs: [build-ubuntu, build-windows]
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Linux package artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-package
+
+      - name: Download Windows package artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-package
+
+      - name: Publish release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        shell: cmd
         run: |
-          gh release upload v2026.0.${{ github.run_number }} \
-            build\mp3-player-2026.0.${{ github.run_number }}-win64.zip \
-            build\mp3-player-2026.0.${{ github.run_number }}-win64.tar.gz
+          set -e
+          if ! gh release create "${{ github.event.inputs.version }}" --notes "${{ github.event.inputs.release_notes }}" build/*.tar.gz build/*.zip; then
+            gh release upload "${{ github.event.inputs.version }}" build/*.tar.gz build/*.zip
+          fi
