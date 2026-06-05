@@ -56,4 +56,5 @@ public:
     void removeListener(AudioEngineListener* listener) override;
     float getTrackProgress() const override;
     float getVolume() const override;
+    bool isTrackPlayable(const std::string& filePath) const override;
 };

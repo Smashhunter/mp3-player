@@ -155,3 +155,9 @@ float SfmlAudioEngine::getVolume() const
 {
     return music.getVolume()*100;
 }
+
+bool SfmlAudioEngine::isTrackPlayable(const std::string &filePath) const
+{
+    sf::Music testMusic;
+    return testMusic.openFromFile(filePath);
+}
