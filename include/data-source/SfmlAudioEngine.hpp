@@ -54,4 +54,6 @@ public:
     void seek(float percentage) override;
     void addListener(AudioEngineListener* listener) override;
     void removeListener(AudioEngineListener* listener) override;
+    float getTrackProgress() const override;
+    float getVolume() const override;
 };

@@ -24,6 +24,9 @@ public:
     void toggleLooping();
     void seek(float position); // Position in seconds
     const Track* getCurrentTrack() const;
+    int getCurrentTrackIndex() const;
+    float getTrackProgress() const;
+    float getVolume() const;
     const Playlist& getPlaylist() const;
     void onTrackEnded() override;
     void setVolume(float volume);

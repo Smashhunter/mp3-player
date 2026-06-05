@@ -145,3 +145,13 @@ void SfmlAudioEngine::removeListener(AudioEngineListener *listener)
 {
     listeners.erase(std::remove(listeners.begin(), listeners.end(), listener), listeners.end());
 }
+
+float SfmlAudioEngine::getTrackProgress() const
+{
+    return music.getPlayingOffset().asSeconds()/music.getDuration().asSeconds();
+}
+
+float SfmlAudioEngine::getVolume() const
+{
+    return music.getVolume()*100;
+}

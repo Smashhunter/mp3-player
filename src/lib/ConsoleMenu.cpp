@@ -73,7 +73,9 @@ void ConsoleMenu::handleUserInput(TrackRepository* repository)
         // For example:
         // Playlist newPlaylist = loadPlaylistFromFile(path);
         repository->setDataFolderPath(path);
+        repository->loadCover(); // Assuming cover is in the same folder
         playbackQueue->setPlaylist(repository->loadTracks());
+        std::cout << "Cover file path: " << repository->getCoverFilePath() << std::endl;
     } else if (command == "help") {
         displayMenu();
     } else {

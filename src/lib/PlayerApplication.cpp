@@ -7,6 +7,7 @@ PlayerApplication::PlayerApplication(AudioFactory *factory, TrackRepository *rep
     playbackQueue = new PlaybackQueue(audioEngine);
     consoleMenu = new ConsoleMenu(playbackQueue);
     playbackQueue->setPlaylist(trackRepository->loadTracks());
+    trackRepository->loadCover();
     audioEngine->addListener(playbackQueue);
 }
 

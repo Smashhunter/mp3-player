@@ -21,4 +21,6 @@ public:
     virtual void seek(float position) = 0; // Position in seconds
     virtual void addListener(AudioEngineListener* listener) = 0;
     virtual void removeListener(AudioEngineListener* listener) = 0;
+    virtual float getTrackProgress() const = 0;
+    virtual float getVolume() const = 0;
 };

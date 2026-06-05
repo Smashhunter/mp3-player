@@ -1,26 +1,33 @@
-#include "presentation/PlayerApplication.hpp"
+#include <QGuiApplication>
+#include <QQmlApplicationEngine>
+#include <QQmlContext>
+#include <QStandardPaths>
+#include "presentation/Client.hpp"
 #include "factories/SfmlAudioEngineFactory.hpp"
 #include "data-source/TrackRepository.hpp"
 
-#include <iostream>
-#include <stdlib.h>
+#include <string>
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
-	std::string dataFolderPath = "/home/"+std::string(getenv("USER"))+"/Music";
-	if(argc > 1)
-	{
-		std::cout << "Data folder path provided: " << argv[1] << std::endl;
-		dataFolderPath = argv[1];
-	}
-	else
-	{
-		std::cout << "No data folder path provided. Using default: " << dataFolderPath << std::endl;
-	}
-	SfmlAudioEngineFactory audioEngineFactory;
-	TrackRepository trackRepository(dataFolderPath);
+    QGuiApplication app(argc, argv);
+    SfmlAudioEngineFactory sfFactory;
+    // std::string defaultMusicPath = (QStandardPaths::writableLocation(QStandardPaths::MusicLocation)).toStdString();
+    TrackRepository trackRep("");
+    Client client;
+    client.init(&sfFactory,&trackRep);
 
-	PlayerApplication app(&audioEngineFactory, &trackRepository);
-	app.run();
-	return 0;
+
+    QQmlApplicationEngine engine;
+    engine.rootContext()->setContextProperty(QStringLiteral("client"), &client);
+
+    QObject::connect(
+        &engine,
+        &QQmlApplicationEngine::objectCreationFailed,
+        &app,
+        []() { QCoreApplication::exit(-1); },
+        Qt::QueuedConnection);
+    engine.loadFromModule("mp3player", "Main");
+ 
+    return app.exec();
 }

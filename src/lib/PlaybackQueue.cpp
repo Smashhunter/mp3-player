@@ -68,6 +68,21 @@ const Track *PlaybackQueue::getCurrentTrack() const
 {
     return (currentTrackIndex >= 0 && currentTrackIndex < playlist.getTrackCount()) ? &playlist.getTracks()[currentTrackIndex] : nullptr;
 }
+
+int PlaybackQueue::getCurrentTrackIndex() const
+{
+    return currentTrackIndex;
+}
+float PlaybackQueue::getTrackProgress() const
+{
+    return audioEngine->getTrackProgress();
+}
+float PlaybackQueue::getVolume() const
+{
+    return audioEngine->getVolume();
+}
+
+
 const Playlist &PlaybackQueue::getPlaylist() const
 {
     return playlist;
