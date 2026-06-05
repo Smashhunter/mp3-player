@@ -12,6 +12,7 @@ void Client::init(AudioFactory *factory, TrackRepository *repository)
     audioFactory = factory;
     trackRepository = repository;
     audioEngine = factory->createAudioEngine();
+    trackRepository->setAudioEngine(audioEngine);
     playbackQueue = new PlaybackQueue(audioEngine);
     playbackQueue->setPlaylist(trackRepository->loadTracks());
     repository->loadCover();
