@@ -17,6 +17,7 @@ void Client::init(AudioFactory *factory, TrackRepository *repository)
     playbackQueue->setPlaylist(trackRepository->loadTracks());
     repository->loadCover();
     audioEngine->addListener(playbackQueue);
+    playbackQueue->setVolume(0.5f);
 }
 
 int Client::getCurrentTrackIndex() const

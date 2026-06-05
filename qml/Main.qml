@@ -190,7 +190,7 @@ ApplicationWindow {
                 Slider {
                     from: 0
                     to: 100
-                    value: client.getVolume()
+                    value: 50
                     onMoved: client.setVolume(value/100)
                     orientation: Qt.Vertical
                     height: 150
