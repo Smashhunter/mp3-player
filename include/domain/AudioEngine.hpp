@@ -23,4 +23,5 @@ public:
     virtual void removeListener(AudioEngineListener* listener) = 0;
     virtual float getTrackProgress() const = 0;
     virtual float getVolume() const = 0;
+    virtual bool isTrackPlayable(const std::string& filePath) const = 0;
 };

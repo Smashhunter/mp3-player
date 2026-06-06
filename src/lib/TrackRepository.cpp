@@ -36,6 +36,9 @@ Playlist TrackRepository::loadTracks() const
         {
             std::string filePath = entry.path().string();
             std::string fileName = entry.path().filename().string();
+            if (engine && !engine->isTrackPlayable(filePath))
+                continue;
+
             playlist.addTrack(Track(fileName, filePath));
         }
     }
@@ -79,4 +82,9 @@ std::string TrackRepository::loadCover()
 std::string TrackRepository::getCoverFilePath() const
 {
     return coverFilePath;
+}
+
+void TrackRepository::setAudioEngine(AudioEngine* engine)
+{
+    this->engine = engine;
 }
